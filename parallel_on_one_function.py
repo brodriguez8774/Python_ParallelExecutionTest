@@ -1,21 +1,6 @@
 """
 Program to test out how Python handles parallel execution.
-
-Notes:
-    According to http://chriskiehl.com/article/parallelism-in-one-line/, it seems that using multiprocessing.dummy is
-    generally more efficient (both from "code length" and "execution time" standpoints) than manually creating your own
-    threading management.
-
-    Furthermore, according to both https://stackoverflow.com/questions/2846653/how-to-use-threading-in-python
-    and python docs, multiprocessing.dummy and multiprocessing both have the same api.
-
-    The main difference is that multiprocessing.dummy executes as multiple threads while standard multiprocessing
-    executes as multiple processes on a single thread.
-
-    Finally, it's worth noting that Python seems to have "the GIL" or "Global Interpreter Lock" which explicitly
-    prevents any two threads from running at the same time. Because of this, standard multiprocessing (which runs
-    parallel processes) is good for CPU intensive work where multiprocessing.dummy (which runs parallel threads on a
-    single process) is good for IO intensive work. Having the same API to interchange between the two is very powerful.
+Each thread/process runs its own instance of the same function.
 """
 
 import random, time
