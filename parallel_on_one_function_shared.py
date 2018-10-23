@@ -1,9 +1,12 @@
 """
 Program to test out how Python handles parallel execution.
 Each thread/process runs its own instance of the same function.
+Uses a shared variable to track thread number.
 """
 
 import random, time
+from functools import partial
+from multiprocessing import Manager
 from multiprocessing import Pool as MultiProcessPool
 from multiprocessing.dummy import Pool as MultiThreadPool
 
@@ -19,7 +22,6 @@ class ParallelismTest():
     def __init__(self, print_array, use_dummy_version=False, sleep=True):
         print('')
 
-        self.thread_number = 0
         self.print_array = []
 
         # Since our threading method requires more than one arg, we need to pack the array with tuples.
@@ -34,29 +36,42 @@ class ParallelismTest():
             print('Executing Parallel Processing Test:')
             thread_pool = MultiProcessPool(10)
 
+        # To share data and locks between processes, a manager must be used.
+        # Note that a manager is not necessary for threads, but is implemented here anyways to show that it can be.
+        manager = Manager()
+        lock = manager.RLock()
+        thread_number = manager.Value('i', 0, lock=True)
+        partial_func = partial(self.thread_wrapper, thread_number, lock)
+
         # Run parallel execution.
-        thread_results = thread_pool.map(self.thread_wrapper, self.print_array)
+        thread_results = thread_pool.map(partial_func, self.print_array)
         thread_pool.close()
         thread_pool.join()
         print('   Threading Results: {0}'.format(thread_results))
 
-    def thread_wrapper(self, args):
+    def thread_wrapper(self, thread_number, lock, args):
         """
         This is necessary to pass multiple args into a called thread method.
         If we were only passing one arg per thread, then we can skip this and call that method directly.
         :param args: Tuple of args to pass into method.
         :return: The returned value from our desired thread method.
         """
-        return self.print_item(*args)
+        return self.print_item(thread_number, lock, *args)
 
-    def print_item(self, item, sleep):
+    def print_item(self, thread_number, lock, item, sleep):
         """
         Prints out the given item after a random time.
+        :param thread_number: The common data var between threads/processes. Holds thread/process count.
+        :param lock: The lock created by the threading manager.
         :param item: Item to print.
         :param sleep: Dictates if sleep values should be used.
         """
-        this_thread_number = self.thread_number
-        self.thread_number += 1
+
+        # Limit access behind a lock. Ensures only one thread/process can access at a time.
+        with lock:
+            this_thread_number = thread_number.value
+            thread_number.value += 1
+
         print('   Started Thread #{0}'.format(this_thread_number))
 
         if sleep:
