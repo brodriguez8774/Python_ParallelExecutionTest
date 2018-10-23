@@ -5,7 +5,7 @@
 Brandon Rodriguez
 
 ## About This Program
-This program has three main files.
+This program has three main files. Simply run each as a standalone Python file.
 
 Note for the first two: The numbering print out for multiprocessing currently does not work properly. To resolve this,
 there needs to be a lock around the number counter, which was excluded to make code simpler.
