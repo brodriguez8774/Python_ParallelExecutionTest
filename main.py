@@ -19,8 +19,8 @@ Notes:
 """
 
 import random, time
-from multiprocessing import Pool as ThreadPool
-from multiprocessing.dummy import Pool as DummyThreadPool
+from multiprocessing import Pool as MultiProcessPool
+from multiprocessing.dummy import Pool as MultiThreadPool
 
 
 class ParallelismTest():
@@ -41,13 +41,13 @@ class ParallelismTest():
         for arg in print_array:
             self.print_array.append((arg, sleep))
 
-        # Check for parallel processes (dummy) VS parallel threads (standard).
+        # Check for parallel processes (standard) VS parallel threads (dummy).
         if use_dummy_version:
             print('Executing Parallel Threading Test:')
-            thread_pool = DummyThreadPool(10)
+            thread_pool = MultiThreadPool(10)
         else:
             print('Executing Parallel Processing Test:')
-            thread_pool = ThreadPool(10)
+            thread_pool = MultiProcessPool(10)
 
         # Run parallel execution.
         thread_results = thread_pool.map(self.thread_wrapper, self.print_array)
@@ -105,12 +105,12 @@ if __name__ == "__main__":
 
     # Test as parallel threads.
     parallel_thread_start_time = time.time()
-    ParallelismTest(print_array, sleep=False, use_dummy_version=True)
+    ParallelismTest(print_array, sleep=True, use_dummy_version=True)
     parallel_thread_end_time = time.time()
 
     # Test as parallel processes.
     parallel_process_start_time = time.time()
-    ParallelismTest(print_array, sleep=False, use_dummy_version=False)
+    ParallelismTest(print_array, sleep=True, use_dummy_version=False)
     parallel_process_end_time = time.time()
 
     print('')
