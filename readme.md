@@ -1,5 +1,5 @@
 
-# Python - Threading Test
+# Python - Parallel Execution Test
 
 ## Author
 Brandon Rodriguez
